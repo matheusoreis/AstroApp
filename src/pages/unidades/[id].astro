@@ -1,0 +1,27 @@
+---
+import Layout from "@/layouts/index.astro";
+
+import { UnitsService } from "@/domains/services/units";
+import { UnitsRepository } from "@/infrastructure/repositories/units";
+
+const { id } = Astro.params;
+
+const service = new UnitsService(new UnitsRepository());
+const { data: units } = await service.fetch();
+
+const unit = units?.find((u) => u.id === Number(id));
+---
+
+<Layout content={{ title: `Unidade: ${unit?.description}` }} />
+{
+  unit ? (
+    <div>
+      <h1>{unit.description}</h1>
+      <p>ID: {unit.id}</p>
+      <p>Criado em: {unit.criado_em?.toLocaleString()}</p>
+      <p>Atualizado em: {unit.criado_em?.toLocaleString()}</p>
+    </div>
+  ) : (
+    <p>Unidade não encontrada.</p>
+  )
+}

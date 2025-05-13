@@ -1,0 +1,24 @@
+---
+import Layout from "@/layouts/index.astro";
+
+import UnitsList from "@/components/units-list.astro";
+import getUnits from "@/libs/units/fetch";
+
+const { data: units, error: unitsError } = await getUnits();
+---
+
+<Layout content={{ title: "GoodJobs - Vagas" }}>
+  <section>
+    <div>
+      <h1>Unidades</h1>
+      {unitsError && <p>Erro: {unitsError}</p>}
+      {units && <UnitsList units={units} server:defer />}
+    </div>
+  </section>
+
+  <style>
+    h1 {
+      color: orange;
+    }
+  </style>
+</Layout>
