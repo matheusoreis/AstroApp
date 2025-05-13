@@ -1,5 +1,6 @@
 ---
 import type { Unit } from "@/domains/entities/postgres/unit";
+import { Button } from "@/components/shadcn/button.tsx";
 
 interface Props {
   units: Unit[];
@@ -11,9 +12,10 @@ const { units } = Astro.props;
 <ul>
   {
     units.map((unit) => (
-      <li>
+      <li class="flex flex-row gap-2 pb-2">
+        <p>{unit.description}</p>
         <a href={`/unidades/${unit.id}`}>
-          <p>{unit.description}</p>
+          <Button>Detalhes</Button>
         </a>
       </li>
     ))
