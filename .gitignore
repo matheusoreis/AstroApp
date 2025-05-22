@@ -23,7 +23,7 @@ test-results/
 .eslintcache
 
 # Environment Variables
-# *.env
+*.env
 
 # Astro Specific
 packages/astro/src/**/*.prebuilt.ts
