@@ -7,16 +7,19 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "migrate:up": "tsx --no-warnings ./node_modules/knex/bin/cli.js --knexfile knexfile.ts --env postgres migrate:latest",
+    "migrate:make": "tsx --no-warnings ./node_modules/knex/bin/cli.js --knexfile knexfile.ts --env postgres migrate:make"
   },
   "dependencies": {
     "@astrojs/node": "^9.2.2",
     "@astrojs/react": "^4.3.0",
+    "@tailwindcss/vite": "^4.1.7",
     "astro": "^5.8.0",
     "knex": "^3.1.0",
+    "pg": "^8.16.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "@tailwindcss/vite": "^4.1.7",
     "tailwindcss": "^4.1.7"
   },
   "devDependencies": {
