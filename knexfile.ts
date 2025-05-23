@@ -13,7 +13,7 @@ const config: { [key: string]: Knex.Config } = {
     searchPath: [process.env.POSTGRES_DB_SCHEMA ?? "public"],
     pool: { min: 2, max: 10 },
     migrations: {
-      directory: "./src/infrastructure/database/migrations/postgres",
+      directory: "./src/infrastructure/database/migrations",
       tableName: "migrations",
       extension: "ts",
     },

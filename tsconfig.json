@@ -19,13 +19,9 @@
     "paths": {
       "@/*": ["./src/*"],
       "@/components/*": ["./src/components/*"],
-      "@/entities/*": ["./src/domains/entities/*"],
-      "@/interfaces/*": ["./src/domains/interfaces/*"],
-      "@/services/*": ["./src/domains/services/*"],
-      "@/database/*": ["./src/infrastructures/database/*"],
-      "@/repositories/*": ["./src/infrastructures/repositories/*"],
+      "@/domains/*": ["./src/domains/*"],
+      "@/infrastructures/*": ["./src/infrastructures/*"],
       "@/layouts/*": ["./src/layouts/*"],
-      "@/libs/*": ["./src/libs/*"],
       "@/pages/*": ["./src/pages/*"],
       "@/shared/*": ["./src/shared/*"]
     },

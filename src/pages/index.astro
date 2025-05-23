@@ -1,24 +1,20 @@
 ---
+import CreateUser from "@/components/create-user";
+import UserList from "@/components/user-list";
+import { UserService } from "@/domains/services/user";
+import { UserRepository } from "@/infrastructure/repositories/user";
 import Layout from "@/layouts/index.astro";
 
-import UnitsList from "@/components/units-list.astro";
-import getUnits from "@/libs/units/fetch";
-
-const { data: units, error: unitsError } = await getUnits();
+const service = new UserService(new UserRepository());
+const { data, error } = await service.getAll();
 ---
 
-<Layout content={{ title: "GoodJobs - Vagas" }}>
+<Layout content={{ title: "AstroApp" }}>
   <section>
     <div>
-      <h1>Unidades</h1>
-      {unitsError && <p>Erro: {unitsError}</p>}
-      {units && <UnitsList units={units} server:defer />}
+      <h1>AstroApp</h1>
+      <CreateUser client:visible />
+      <UserList users={data ?? []} client:visible />
     </div>
   </section>
-
-  <style>
-    h1 {
-      color: orange;
-    }
-  </style>
 </Layout>
