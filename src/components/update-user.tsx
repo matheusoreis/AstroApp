@@ -1,21 +1,22 @@
-import React from "react";
+import type { FormErrorType } from "@/domains/types/form-error";
+import type ServiceResult from "@/domains/types/service-result";
+import type { UpdateUserType, UserType } from "@/domains/types/user";
 import {
+  Button,
   Form,
   Input,
-  Button,
   Popover,
-  PopoverTrigger,
   PopoverContent,
+  PopoverTrigger,
 } from "@heroui/react";
-import type { UserType } from "@/domains/types/user";
-import type ServiceResult from "@/domains/types/service-result";
-import type { FormErrorType } from "@/domains/types/form-error";
+import React from "react";
 
-interface CreateUserProps {
-  onCreated: (user: UserType) => void;
+interface EditUserProps {
+  user: UpdateUserType;
+  onEdited: (user: UserType) => void;
 }
 
-export default function CreateUser({ onCreated }: CreateUserProps) {
+export default function UpdateUser({ user, onEdited }: EditUserProps) {
   const [errors, setErrors] = React.useState<FormErrorType>({});
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [success, setSuccess] = React.useState<UserType | undefined>(undefined);
@@ -34,28 +35,28 @@ export default function CreateUser({ onCreated }: CreateUserProps) {
     );
 
     try {
-      const response = await fetch("/apis/create-user", {
-        method: "POST",
+      const response = await fetch("/apis/update-user", {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ id: user.id, ...data }),
       });
 
       const result: ServiceResult<UserType> = await response.json();
 
       if (!response.ok || !result.data) {
-        setErrors(result.error ?? { form: "Erro ao criar usuário." });
+        setErrors(result.error ?? { form: "Erro ao atualizar usuário." });
         return;
       }
 
       setSuccess(result.data);
-      onCreated(result.data);
+      onEdited(result.data);
 
       form.reset();
       setIsOpen(false);
     } catch (err) {
-      setErrors({ form: "Erro ao criar usuário." });
+      setErrors({ form: "Erro ao atualizar usuário." });
     } finally {
       setIsSubmitting(false);
     }
@@ -64,7 +65,7 @@ export default function CreateUser({ onCreated }: CreateUserProps) {
   return (
     <Popover isOpen={isOpen} onOpenChange={setIsOpen} placement="bottom">
       <PopoverTrigger>
-        <Button color="primary">Novo Usuário</Button>
+        <Button color="primary">Editar</Button>
       </PopoverTrigger>
       <PopoverContent className="p-4">
         <Form
@@ -73,21 +74,18 @@ export default function CreateUser({ onCreated }: CreateUserProps) {
           validationErrors={errors}
         >
           <Input
-            isRequired
             name="name"
             label="Nome"
             labelPlacement="outside"
             placeholder="Digite o nome do usuário"
           />
           <Input
-            isRequired
             name="description"
             label="Descrição"
             labelPlacement="outside"
             placeholder="Descrição do usuário"
           />
           <Input
-            isRequired
             name="avatarLink"
             label="Avatar (URL)"
             labelPlacement="outside"
@@ -102,13 +100,13 @@ export default function CreateUser({ onCreated }: CreateUserProps) {
             color="primary"
             className="w-full"
           >
-            Criar Usuário
+            Atualizar Usuário
           </Button>
 
           {errors.form && <p className="text-red-500 text-sm">{errors.form}</p>}
           {success && (
             <p className="text-green-600 text-sm">
-              Usuário <strong>{success.name}</strong> criado com sucesso!
+              Usuário <strong>{success.name}</strong> atualizado com sucesso!
             </p>
           )}
         </Form>

@@ -6,7 +6,8 @@ export interface UserRepositoryInterface {
   getById(id: number): Promise<UserType>;
   create(data: CreateUserType): Promise<UserType>;
   deleteById(id: number): Promise<number>;
-  update(id: number, data: UpdateUserType): Promise<UserType>;
+  update(data: UpdateUserType): Promise<UserType>;
+  deleteAll(): Promise<boolean>;
 }
 
 export interface UserServiceInterface {
@@ -15,5 +16,6 @@ export interface UserServiceInterface {
   getById(id: number): Promise<ServiceResult<UserType>>;
   create(data: CreateUserType): Promise<ServiceResult<UserType>>;
   deleteById(id: number): Promise<ServiceResult<number>>;
-  update(id: number, data: UpdateUserType): Promise<ServiceResult<UserType>>;
+  update(data: UpdateUserType): Promise<ServiceResult<UserType>>;
+  deleteAll(): Promise<ServiceResult<boolean>>;
 }

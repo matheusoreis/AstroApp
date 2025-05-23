@@ -1,20 +1,15 @@
 ---
-import CreateUser from "@/components/create-user";
-import UserList from "@/components/user-list";
+import UserSection from "@/components/user-section";
 import { UserService } from "@/domains/services/user";
+import type ServiceResult from "@/domains/types/service-result";
+import type { UserType } from "@/domains/types/user";
 import { UserRepository } from "@/infrastructure/repositories/user";
 import Layout from "@/layouts/index.astro";
 
 const service = new UserService(new UserRepository());
-const { data, error } = await service.getAll();
+const response: ServiceResult<UserType[]> = await service.getAll();
 ---
 
-<Layout content={{ title: "AstroApp" }}>
-  <section>
-    <div>
-      <h1>AstroApp</h1>
-      <CreateUser client:visible />
-      <UserList users={data ?? []} client:visible />
-    </div>
-  </section>
+<Layout content={{ title: "AstroApp - Usuários" }}>
+  <UserSection response={response} client:visible />
 </Layout>

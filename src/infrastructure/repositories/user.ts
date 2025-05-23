@@ -25,7 +25,7 @@ export class UserRepository implements UserRepositoryInterface {
     const row = await postgres("users").where("id", id).first();
 
     if (!row) {
-      throw new NotFoundError(`Unidade com o id ${id} não encontrada.`);
+      throw new NotFoundError(`Usuário com o id ${id} não encontrada.`);
     }
 
     return this.mapRowToUserType(row);
@@ -68,11 +68,25 @@ export class UserRepository implements UserRepositoryInterface {
     return id;
   }
 
-  async update(id: number, data: UpdateUserType): Promise<UserType> {
-    await this.getUserOrFail(id);
+  async update(data: UpdateUserType): Promise<UserType> {
+    if (!data.id) {
+      throw new NotFoundError(
+        "Não foi possível prosseguir com a solicitação, o Id não foi informado.",
+      );
+    }
+
+    await this.getUserOrFail(data.id);
+
+    const fieldMap: Record<string, string> = {
+      name: "name",
+      description: "description",
+      avatarLink: "avatar_link",
+    };
 
     const filteredData = Object.fromEntries(
-      Object.entries(data).filter(([_, value]) => value !== undefined),
+      Object.entries(data)
+        .filter(([_, value]) => value != null && value !== "")
+        .map(([key, value]) => [fieldMap[key] || key, value]),
     );
 
     if (Object.keys(filteredData).length === 0) {
@@ -80,19 +94,29 @@ export class UserRepository implements UserRepositoryInterface {
     }
 
     const [row] = await postgres("users")
-      .where("id", id)
+      .where("id", data.id)
       .update({
         ...filteredData,
-        atualizado_em: new Date(),
+        updated_at: new Date(),
       })
       .returning("*");
 
     if (!row) {
       throw new RowNotAffectedError(
-        `Falha ao atualizar o usuário com id ${id}`,
+        `Falha ao atualizar o usuário com id ${data.id}`,
       );
     }
 
     return this.mapRowToUserType(row);
+  }
+
+  async deleteAll(): Promise<boolean> {
+    const deletedCount = await postgres("users").del();
+
+    if (deletedCount === 0) {
+      throw new RowNotAffectedError(`Nenhum registro foi deletado.`);
+    }
+
+    return true;
   }
 }
