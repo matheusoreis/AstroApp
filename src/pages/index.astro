@@ -1,24 +1,15 @@
 ---
+import UserSection from "@/components/user-section";
+import { UserService } from "@/domains/services/user";
+import type ServiceResult from "@/domains/types/service-result";
+import type { UserType } from "@/domains/types/user";
+import { UserRepository } from "@/infrastructure/repositories/user";
 import Layout from "@/layouts/index.astro";
 
-import UnitsList from "@/components/units-list.astro";
-import getUnits from "@/libs/units/fetch";
-
-const { data: units, error: unitsError } = await getUnits();
+const service = new UserService(new UserRepository());
+const response: ServiceResult<UserType[]> = await service.getAll();
 ---
 
-<Layout content={{ title: "GoodJobs - Vagas" }}>
-  <section>
-    <div>
-      <h1>Unidades</h1>
-      {unitsError && <p>Erro: {unitsError}</p>}
-      {units && <UnitsList units={units} server:defer />}
-    </div>
-  </section>
-
-  <style>
-    h1 {
-      color: orange;
-    }
-  </style>
+<Layout content={{ title: "AstroApp - Usuários" }}>
+  <UserSection response={response} client:visible />
 </Layout>

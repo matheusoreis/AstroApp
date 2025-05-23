@@ -1,19 +1,12 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [
-    ".astro/types.d.ts",
-    "**/*"
-  ],
-  "exclude": [
-    "dist"
-  ],
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"],
   "compilerOptions": {
-    "lib": [
-      "ES2023"
-    ],
+    "lib": ["ES2023", "DOM"],
     "target": "ES2023",
-    "module": "Node16",
-    "moduleResolution": "Node16",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -22,40 +15,15 @@
     "jsxImportSource": "react",
     "strictPropertyInitialization": false,
     "baseUrl": ".",
+    "types": ["astro/client"],
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@/components/*": [
-        "./src/components/*"
-      ],
-      "@/entities/*": [
-        "./src/domains/entities/*"
-      ],
-      "@/interfaces/*": [
-        "./src/domains/interfaces/*"
-      ],
-      "@/services/*": [
-        "./src/domains/services/*"
-      ],
-      "@/database/*": [
-        "./src/infrastructures/database/*"
-      ],
-      "@/repositories/*": [
-        "./src/infrastructures/repositories/*"
-      ],
-      "@/layouts/*": [
-        "./src/layouts/*"
-      ],
-      "@/libs/*": [
-        "./src/libs/*"
-      ],
-      "@/pages/*": [
-        "./src/pages/*"
-      ],
-      "@/shared/*": [
-        "./src/shared/*"
-      ]
+      "@/*": ["./src/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/domains/*": ["./src/domains/*"],
+      "@/infrastructures/*": ["./src/infrastructures/*"],
+      "@/layouts/*": ["./src/layouts/*"],
+      "@/pages/*": ["./src/pages/*"],
+      "@/shared/*": ["./src/shared/*"]
     },
     "verbatimModuleSyntax": true
   }

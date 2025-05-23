@@ -1,45 +1,36 @@
 {
   "name": "astroapp",
   "version": "1.0.0",
-  "description": "",
-  "license": "ISC",
-  "author": "",
+  "license": "MIT",
+  "author": "Matheus R. Oliveira",
   "type": "module",
-  "main": "index.js",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "db:sync": "tsx ./src/infrastructure/database/synchronize.ts"
-  },
-  "devDependencies": {
-    "@types/node": "^22.15.17",
-    "prettier": "^3.5.3",
-    "prettier-plugin-astro": "^0.14.1",
-    "tsx": "^4.19.4",
-    "tw-animate-css": "^1.2.9",
-    "typescript": "^5.8.3"
+    "migrate:up": "tsx --no-warnings ./node_modules/knex/bin/cli.js --knexfile knexfile.ts --env postgres migrate:latest",
+    "migrate:make": "tsx --no-warnings ./node_modules/knex/bin/cli.js --knexfile knexfile.ts --env postgres migrate:make"
   },
   "dependencies": {
-    "@astrojs/node": "^9.2.1",
-    "@astrojs/react": "^4.2.7",
-    "@radix-ui/react-slot": "^1.2.2",
-    "@tailwindcss/vite": "^4.1.6",
-    "@types/react": "^18.3.21",
-    "@types/react-dom": "^18.3.7",
-    "astro": "^5.7.12",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
+    "@astrojs/node": "^9.2.2",
+    "@astrojs/react": "^4.3.0",
+    "@heroui/react": "^2.8.0-beta.5",
+    "@tailwindcss/vite": "^4.1.7",
+    "astro": "^5.8.0",
     "dotenv": "^16.5.0",
-    "lucide-react": "^0.510.0",
-    "mariadb": "^3.4.2",
-    "oracledb": "^6.8.0",
+    "knex": "^3.1.0",
     "pg": "^8.16.0",
-    "pg-hstore": "^2.3.4",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "sequelize": "^6.37.7",
-    "tailwind-merge": "^3.3.0",
-    "tailwindcss": "^4.1.6"
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tailwindcss": "^4.1.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "@types/react": "^19.1.5",
+    "@types/react-dom": "^19.1.5",
+    "prettier": "3.5.3",
+    "prettier-plugin-astro": "0.14.1",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
   }
 }
