@@ -1,4 +1,5 @@
 /// <reference types="astro/client" />
+/// <reference types="vite-plugin-pwa/client" />
 
 declare module "virtual:pwa-assets/head" {
   export const pwaAssetsHead: {
@@ -20,5 +21,17 @@ declare module "virtual:pwa-info" {
     webManifest: {
       linkTag: string;
     };
+  };
+}
+
+declare module "virtual:pwa-register/react" {
+  import type { Dispatch, SetStateAction } from "react";
+  import type { RegisterSWOptions } from "vite-plugin-pwa/types";
+
+  export type { RegisterSWOptions };
+  export function useRegisterSW(options?: RegisterSWOptions): {
+    needRefresh: [boolean, Dispatch<SetStateAction<boolean>>];
+    offlineReady: [boolean, Dispatch<SetStateAction<boolean>>];
+    updateServiceWorker: (reloadPage?: boolean) => Promise<void>;
   };
 }

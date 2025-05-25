@@ -15,7 +15,7 @@
     "jsxImportSource": "react",
     "strictPropertyInitialization": false,
     "baseUrl": ".",
-    "types": ["astro/client"],
+    "types": ["astro/client", "vite-plugin-pwa/client"],
     "paths": {
       "@/*": ["./src/*"],
       "@/components/*": ["./src/components/*"],
