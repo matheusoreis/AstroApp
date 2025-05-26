@@ -10,13 +10,21 @@ export default defineConfig({
     mode: "standalone",
   }),
   vite: {
+    server: {
+      fs: {
+        allow: ["../.."],
+      },
+    },
     plugins: [tailwindcss()],
   },
   integrations: [
     react(),
     pwa({
       registerType: "autoUpdate",
-      includeAssets: ["pwa/**", "favicon.svg"],
+      workbox: {
+        globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
+      },
+      includeAssets: ["pwa/**", "favicon.svg", "robots.txt"],
       devOptions: {
         enabled: true,
       },

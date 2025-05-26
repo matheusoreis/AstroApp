@@ -10,6 +10,6 @@ const service = new UserService(new UserRepository());
 const response: ServiceResult<UserType[]> = await service.getAll();
 ---
 
-<Layout content={{ title: "AstroApp - Usuários" }}>
+<Layout title={"AstroApp - Usuários"}>
   <UserSection response={response} client:visible />
 </Layout>
