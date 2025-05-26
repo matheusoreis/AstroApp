@@ -1,7 +1,4 @@
-import type {
-  UserRepositoryInterface,
-  UserServiceInterface,
-} from "@/domains/interfaces/user";
+import type { UserRepositoryInterface } from "@/domains/interfaces/user";
 import { UserService } from "@/domains/services/user";
 import type ServiceResult from "@/domains/types/service-result";
 import type { DeleteUserType, UserType } from "@/domains/types/user";
@@ -12,7 +9,7 @@ import type { APIContext } from "astro";
 export async function DELETE(context: APIContext): Promise<Response> {
   try {
     const repository: UserRepositoryInterface = new UserRepository();
-    const service: UserServiceInterface = new UserService(repository);
+    const service: UserService = new UserService(repository);
 
     const headers: Headers = context.request.headers;
     const body: DeleteUserType = await context.request.json();

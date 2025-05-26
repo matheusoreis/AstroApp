@@ -1,14 +1,11 @@
 import { InvalidFieldError } from "../errors/invalid-field";
 import { NotFoundError } from "../errors/not-found";
 import { RowNotAffectedError } from "../errors/row-not-affected";
-import type {
-  UserRepositoryInterface,
-  UserServiceInterface,
-} from "../interfaces/user";
+import type { UserRepositoryInterface } from "../interfaces/user";
 import type ServiceResult from "../types/service-result";
 import type { UserType, CreateUserType, UpdateUserType } from "../types/user";
 
-export class UserService implements UserServiceInterface {
+export class UserService {
   constructor(private readonly repository: UserRepositoryInterface) {}
 
   handleError<T>(e: unknown, fallback: string): ServiceResult<T> {
