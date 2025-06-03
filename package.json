@@ -9,8 +9,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "start": "astro preview",
-    "migrate:up": "tsx --no-warnings ./node_modules/knex/bin/cli.js --knexfile knexfile.ts --env postgres migrate:latest",
-    "migrate:make": "tsx --no-warnings ./node_modules/knex/bin/cli.js --knexfile knexfile.ts --env postgres migrate:make"
+    "db:up": "tsx --no-warnings ./node_modules/knex/bin/cli.js --knexfile knexfile.ts --env postgres migrate:latest",
+    "db:make": "tsx --no-warnings ./node_modules/knex/bin/cli.js --knexfile knexfile.ts --env postgres migrate:make"
   },
   "dependencies": {
     "@astrojs/node": "^9.2.2",
