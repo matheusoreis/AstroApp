@@ -1,4 +1,3 @@
-import type ServiceResult from "../types/service-result";
 import type { CreateUserType, UpdateUserType, UserType } from "../types/user";
 
 export interface UserRepositoryInterface {
@@ -7,5 +6,4 @@ export interface UserRepositoryInterface {
   create(data: CreateUserType): Promise<UserType>;
   deleteById(id: number): Promise<number>;
   update(data: UpdateUserType): Promise<UserType>;
-  deleteAll(): Promise<boolean>;
 }

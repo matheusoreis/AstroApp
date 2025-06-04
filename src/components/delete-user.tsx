@@ -1,20 +1,25 @@
 import type { FormErrorType } from "@/domains/types/form-error";
-import type ServiceResult from "@/domains/types/service-result";
+import type { SerializedResult } from "@/domains/types/serialized-result";
 import type { DeleteUserType } from "@/domains/types/user";
-import { Button } from "@heroui/react";
+import { Alert, Button } from "@heroui/react";
 import React from "react";
 
-interface DeleteUserProps {
+interface DeleteProps {
   user: DeleteUserType;
-  onDeleted: (id: number) => void;
+  onDeleted: (deleted: number) => void;
 }
 
-export default function DeleteUser({ user, onDeleted }: DeleteUserProps) {
-  const [errors, setErrors] = React.useState<FormErrorType>({});
+export default function DeleteUser({ user, onDeleted }: DeleteProps) {
+  const [formErrors, setFormErrors] = React.useState<FormErrorType>({});
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const onSubmit = async () => {
     setIsSubmitting(true);
+    setFormErrors({});
+
+    const body: DeleteUserType = {
+      id: user.id,
+    };
 
     try {
       const response = await fetch("/apis/delete-user", {
@@ -22,32 +27,48 @@ export default function DeleteUser({ user, onDeleted }: DeleteUserProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(user),
+        body: JSON.stringify(body),
       });
 
-      const result: ServiceResult<number> = await response.json();
+      const result: SerializedResult<number> = await response.json();
 
-      if (!response.ok || !result.data) {
-        setErrors(result.error ?? { form: "Erro ao criar usuário." });
+      if (!result.success) {
+        const err = result.error;
+
+        setFormErrors({
+          form: err.message || "Erro inesperado. Tente novamente.",
+        });
+
         return;
       }
 
       onDeleted(result.data);
-    } catch (error: any) {
-      setErrors({ form: "Erro ao criar usuário." });
+    } catch (err) {
+      setFormErrors({ form: "Erro ao apagar usuário." });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Button
-      color="danger"
-      disabled={isSubmitting}
-      isLoading={isSubmitting}
-      onPress={onSubmit}
-    >
-      Apagar
-    </Button>
+    <div>
+      <Button
+        color="danger"
+        disabled={isSubmitting}
+        isLoading={isSubmitting}
+        onPress={onSubmit}
+      >
+        Apagar
+      </Button>
+
+      {formErrors.form && (
+        <Alert
+          color="danger"
+          title="Ops! Aconteceu um erro."
+          description={formErrors.form}
+          variant="faded"
+        />
+      )}
+    </div>
   );
 }

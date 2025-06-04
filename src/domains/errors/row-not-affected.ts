@@ -3,4 +3,11 @@ export class RowNotAffectedError extends Error {
     super(message);
     this.name = "RowNotAffectedError";
   }
+
+  toJSON() {
+    return {
+      name: this.name,
+      message: this.message,
+    };
+  }
 }

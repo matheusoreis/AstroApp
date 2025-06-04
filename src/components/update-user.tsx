@@ -1,7 +1,8 @@
 import type { FormErrorType } from "@/domains/types/form-error";
-import type ServiceResult from "@/domains/types/service-result";
+import type { SerializedResult } from "@/domains/types/serialized-result";
 import type { UpdateUserType, UserType } from "@/domains/types/user";
 import {
+  Alert,
   Button,
   Form,
   Input,
@@ -11,22 +12,20 @@ import {
 } from "@heroui/react";
 import React from "react";
 
-interface EditUserProps {
+interface UpdateProps {
   user: UpdateUserType;
-  onEdited: (user: UserType) => void;
+  onUpdated: (user: UserType) => void;
 }
 
-export default function UpdateUser({ user, onEdited }: EditUserProps) {
-  const [errors, setErrors] = React.useState<FormErrorType>({});
+export default function UpdateUser({ user, onUpdated }: UpdateProps) {
+  const [formErrors, setFormErrors] = React.useState<FormErrorType>({});
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [success, setSuccess] = React.useState<UserType | undefined>(undefined);
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpenOverlay, setOpenOverlay] = React.useState(false);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setErrors({});
-    setSuccess(undefined);
+    setFormErrors({});
 
     const form = e.currentTarget;
     const formData = new FormData(form);
@@ -43,27 +42,41 @@ export default function UpdateUser({ user, onEdited }: EditUserProps) {
         body: JSON.stringify({ id: user.id, ...data }),
       });
 
-      const result: ServiceResult<UserType> = await response.json();
+      const result: SerializedResult<UserType> = await response.json();
 
-      if (!response.ok || !result.data) {
-        setErrors(result.error ?? { form: "Erro ao atualizar usuário." });
+      if (!result.success) {
+        const err = result.error;
+
+        if (err.name === "FieldError") {
+          setFormErrors(
+            err.fields ?? { form: "Erro desconhecido nos campos." },
+          );
+          return;
+        }
+
+        setFormErrors({
+          form: err.message || "Erro inesperado. Tente novamente.",
+        });
+
         return;
       }
 
-      setSuccess(result.data);
-      onEdited(result.data);
-
       form.reset();
-      setIsOpen(false);
+      onUpdated(result.data);
+      setOpenOverlay(false);
     } catch (err) {
-      setErrors({ form: "Erro ao atualizar usuário." });
+      setFormErrors({ form: "Erro ao atualizar usuário." });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Popover isOpen={isOpen} onOpenChange={setIsOpen} placement="bottom">
+    <Popover
+      isOpen={isOpenOverlay}
+      onOpenChange={setOpenOverlay}
+      placement="bottom"
+    >
       <PopoverTrigger>
         <Button color="primary">Editar</Button>
       </PopoverTrigger>
@@ -71,7 +84,7 @@ export default function UpdateUser({ user, onEdited }: EditUserProps) {
         <Form
           className="flex flex-col gap-4"
           onSubmit={onSubmit}
-          validationErrors={errors}
+          validationErrors={formErrors}
         >
           <Input
             name="name"
@@ -103,11 +116,13 @@ export default function UpdateUser({ user, onEdited }: EditUserProps) {
             Atualizar Usuário
           </Button>
 
-          {errors.form && <p className="text-red-500 text-sm">{errors.form}</p>}
-          {success && (
-            <p className="text-green-600 text-sm">
-              Usuário <strong>{success.name}</strong> atualizado com sucesso!
-            </p>
+          {formErrors.form && (
+            <Alert
+              color="danger"
+              title="Ops! Aconteceu um erro."
+              description={formErrors.form}
+              variant="faded"
+            />
           )}
         </Form>
       </PopoverContent>

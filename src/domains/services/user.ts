@@ -1,98 +1,106 @@
 import { InvalidFieldError } from "../errors/invalid-field";
-import { NotFoundError } from "../errors/not-found";
-import { RowNotAffectedError } from "../errors/row-not-affected";
 import type { UserRepositoryInterface } from "../interfaces/user";
-import type ServiceResult from "../types/service-result";
-import type { UserType, CreateUserType, UpdateUserType } from "../types/user";
+import type { ServiceResultType } from "../types/service-result";
+import type {
+  CreateUserType,
+  DeleteUserType,
+  UpdateUserType,
+  UserType,
+} from "../types/user";
 
 export class UserService {
   constructor(private readonly repository: UserRepositoryInterface) {}
 
-  handleError<T>(e: unknown, fallback: string): ServiceResult<T> {
-    if (
-      e instanceof NotFoundError ||
-      e instanceof InvalidFieldError ||
-      e instanceof RowNotAffectedError
-    ) {
-      return {
-        error: {
-          form: e.message,
-        },
-      };
-    }
-
-    const error = e instanceof Error ? e.message : fallback;
-
-    return {
-      error: {
-        form: error,
-      },
-    };
-  }
-
-  async getAll(): Promise<ServiceResult<UserType[]>> {
-    try {
-      return { data: await this.repository.getAll() };
-    } catch (erro) {
-      return this.handleError<UserType[]>(
-        erro,
-        "Erro desconhecido ao buscar usuários.",
+  private validateData(data: Partial<UserType>): InvalidFieldError | null {
+    if (data.description && data.description.length <= 3) {
+      return new InvalidFieldError(
+        "description",
+        "O campo precisa de ao menos 3 caracteres.",
       );
     }
+
+    return null;
   }
 
-  async getById(id: number): Promise<ServiceResult<UserType>> {
+  async getAll(): Promise<ServiceResultType<UserType[], Error>> {
     try {
-      return { data: await this.repository.getById(id) };
+      return { success: true, data: await this.repository.getAll() };
     } catch (e) {
-      return this.handleError<UserType>(
-        e,
-        "Erro desconhecido ao buscar usuário.",
-      );
+      const error =
+        e instanceof Error
+          ? e
+          : new Error("Erro desconhecido ao obter os registros.");
+
+      return { success: false, error: error };
     }
   }
 
-  async create(data: CreateUserType): Promise<ServiceResult<UserType>> {
+  async getById(id: number): Promise<ServiceResultType<UserType, Error>> {
     try {
-      return { data: await this.repository.create(data) };
+      return { success: true, data: await this.repository.getById(id) };
     } catch (e) {
-      return this.handleError<UserType>(
-        e,
-        "Erro desconhecido ao criar usuário.",
-      );
+      const error =
+        e instanceof Error
+          ? e
+          : new Error("Erro desconhecido ao obter a registro.");
+
+      return { success: false, error: error };
     }
   }
 
-  async deleteById(id: number): Promise<ServiceResult<number>> {
+  async create(
+    data: CreateUserType,
+  ): Promise<ServiceResultType<UserType, Error>> {
+    const validationError = this.validateData(data);
+    if (validationError) {
+      return { success: false, error: validationError };
+    }
+
     try {
-      return { data: await this.repository.deleteById(id) };
+      return { success: true, data: await this.repository.create(data) };
     } catch (e) {
-      return this.handleError<number>(
-        e,
-        "Erro desconhecido ao apagar usuário.",
-      );
+      const error =
+        e instanceof Error
+          ? e
+          : new Error("Erro desconhecido ao criar o registro.");
+
+      return { success: false, error: error };
     }
   }
 
-  async update(data: UpdateUserType): Promise<ServiceResult<UserType>> {
+  async deleteById(
+    data: DeleteUserType,
+  ): Promise<ServiceResultType<number, Error>> {
     try {
-      return { data: await this.repository.update(data) };
+      return { success: true, data: await this.repository.deleteById(data.id) };
     } catch (e) {
-      return this.handleError<UserType>(
-        e,
-        "Erro desconhecido ao atualizar usuário.",
-      );
+      const error =
+        e instanceof Error
+          ? e
+          : new Error("Erro desconhecido ao apagar o registro.");
+
+      return { success: false, error: error };
     }
   }
 
-  async deleteAll(): Promise<ServiceResult<boolean>> {
+  async update(
+    data: UpdateUserType,
+  ): Promise<ServiceResultType<UserType, Error>> {
+    const validationError = this.validateData(data);
+    if (validationError) {
+      return { success: false, error: validationError };
+    }
+
     try {
-      return { data: await this.repository.deleteAll() };
+      const updated = await this.repository.update(data);
+      return { success: true, data: updated };
     } catch (e) {
-      return this.handleError<boolean>(
-        e,
-        "Erro desconhecido ao apagar todos os usuário.",
-      );
+      const error =
+        e instanceof Error
+          ? e
+          : new Error("Erro desconhecido ao atualizar o registro.");
+
+      return { success: false, error };
     }
   }
 }

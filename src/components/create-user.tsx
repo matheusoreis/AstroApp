@@ -1,37 +1,38 @@
-import React from "react";
+import type { FormErrorType } from "@/domains/types/form-error";
+import type { SerializedResult } from "@/domains/types/serialized-result";
+import type { UserType } from "@/domains/types/user";
 import {
+  Alert,
+  Button,
   Form,
   Input,
-  Button,
   Popover,
-  PopoverTrigger,
   PopoverContent,
+  PopoverTrigger,
 } from "@heroui/react";
-import type { UserType } from "@/domains/types/user";
-import type ServiceResult from "@/domains/types/service-result";
-import type { FormErrorType } from "@/domains/types/form-error";
+import React from "react";
 
-interface CreateUserProps {
-  onCreated: (user: UserType) => void;
+interface CreateProps {
+  onCreated: (created: UserType) => void;
 }
 
-export default function CreateUser({ onCreated }: CreateUserProps) {
-  const [errors, setErrors] = React.useState<FormErrorType>({});
+export default function CreateUser({ onCreated }: CreateProps) {
+  const [formErrors, setFormErrors] = React.useState<FormErrorType>({});
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [success, setSuccess] = React.useState<UserType | undefined>(undefined);
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpenOverlay, setOpenOverlay] = React.useState(false);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setErrors({});
-    setSuccess(undefined);
+    setFormErrors({});
 
     const form = e.currentTarget;
     const formData = new FormData(form);
     const data = Object.fromEntries(
       formData as unknown as Iterable<[string, FormDataEntryValue]>,
     );
+
+    console.log("Data: ", data);
 
     try {
       const response = await fetch("/apis/create-user", {
@@ -42,27 +43,43 @@ export default function CreateUser({ onCreated }: CreateUserProps) {
         body: JSON.stringify(data),
       });
 
-      const result: ServiceResult<UserType> = await response.json();
+      const result: SerializedResult<UserType> = await response.json();
+      console.log("Resultado: ", result);
 
-      if (!response.ok || !result.data) {
-        setErrors(result.error ?? { form: "Erro ao criar usuário." });
+      if (!result.success) {
+        const err = result.error;
+
+        if (err.name === "FieldError") {
+          setFormErrors(
+            err.fields ?? { form: "Erro desconhecido nos campos." },
+          );
+          return;
+        }
+
+        setFormErrors({
+          form: err.message || "Erro inesperado. Tente novamente.",
+        });
+
         return;
       }
 
-      setSuccess(result.data);
-      onCreated(result.data);
-
       form.reset();
-      setIsOpen(false);
+      onCreated(result.data);
+      setOpenOverlay(false);
     } catch (err) {
-      setErrors({ form: "Erro ao criar usuário." });
+      console.log(err);
+      setFormErrors({ form: "Erro ao criar usuário." });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Popover isOpen={isOpen} onOpenChange={setIsOpen} placement="bottom">
+    <Popover
+      isOpen={isOpenOverlay}
+      onOpenChange={setOpenOverlay}
+      placement="bottom"
+    >
       <PopoverTrigger>
         <Button color="primary">Novo Usuário</Button>
       </PopoverTrigger>
@@ -70,7 +87,7 @@ export default function CreateUser({ onCreated }: CreateUserProps) {
         <Form
           className="flex flex-col gap-4"
           onSubmit={onSubmit}
-          validationErrors={errors}
+          validationErrors={formErrors}
         >
           <Input
             isRequired
@@ -105,11 +122,13 @@ export default function CreateUser({ onCreated }: CreateUserProps) {
             Criar Usuário
           </Button>
 
-          {errors.form && <p className="text-red-500 text-sm">{errors.form}</p>}
-          {success && (
-            <p className="text-green-600 text-sm">
-              Usuário <strong>{success.name}</strong> criado com sucesso!
-            </p>
+          {formErrors.form && (
+            <Alert
+              color="danger"
+              title="Ops! Aconteceu um erro."
+              description={formErrors.form}
+              variant="faded"
+            />
           )}
         </Form>
       </PopoverContent>

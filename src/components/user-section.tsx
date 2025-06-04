@@ -1,17 +1,18 @@
-import type ServiceResult from "@/domains/types/service-result";
-import CreateUser from "./create-user";
-import UserList from "./user-list";
 import type { UserType } from "@/domains/types/user";
 import React from "react";
-import UpdateUser from "./update-user";
-import DeleteAllUsers from "./delete-all-users";
+import CreateUser from "./create-user";
+import UserList from "./user-list";
 
 interface UserSectionProps {
-  response: ServiceResult<UserType[]>;
+  users: UserType[];
 }
 
-export default function UserSection({ response }: UserSectionProps) {
-  const [users, setUsers] = React.useState(response.data?.map((e) => e) ?? []);
+export default function UserSection({ users: initialUsers }: UserSectionProps) {
+  const [users, setUsers] = React.useState(
+    initialUsers.map((user) => ({
+      ...user,
+    })),
+  );
 
   return (
     <section className="p-10">
@@ -25,18 +26,12 @@ export default function UserSection({ response }: UserSectionProps) {
                 setUsers((prev) => [...prev, u]);
               }}
             />
-
-            <DeleteAllUsers
-              onAllDeleted={() => {
-                setUsers([]);
-              }}
-            />
           </div>
         </div>
 
         <UserList
           users={users}
-          onEdited={(u) => {
+          onUpdated={(u) => {
             setUsers((prev) => prev.map((r) => (r.id === u.id ? u : r)));
           }}
           onDeleted={(id) => {

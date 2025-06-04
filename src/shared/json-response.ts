@@ -1,4 +1,8 @@
-export default function jsonResponse<T>(data: T, status = 200, headers: HeadersInit = {}): Response {
+export function jsonResponse<T>(
+  data: T,
+  status = 200,
+  headers: HeadersInit = {},
+): Response {
   return new Response(JSON.stringify(data), {
     status,
     headers: {

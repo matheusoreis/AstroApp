@@ -1,17 +1,17 @@
 import type { UserType } from "@/domains/types/user";
 import { Card, CardBody, User } from "@heroui/react";
-import UpdateUser from "./update-user";
 import DeleteUser from "./delete-user";
+import UpdateUser from "./update-user";
 
 interface UserListProps {
   users: UserType[];
-  onEdited: (user: UserType) => void;
+  onUpdated: (user: UserType) => void;
   onDeleted: (id: number) => void;
 }
 
 export default function UserList({
   users,
-  onEdited,
+  onUpdated,
   onDeleted,
 }: UserListProps) {
   return (
@@ -33,7 +33,7 @@ export default function UserList({
               description={user.description}
             />
             <div className="flex flex-row gap-2">
-              <UpdateUser user={user} onEdited={onEdited} />
+              <UpdateUser user={user} onUpdated={onUpdated} />
               <DeleteUser user={user} onDeleted={onDeleted} />
             </div>
           </div>

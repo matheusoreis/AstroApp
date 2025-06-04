@@ -1,40 +1,29 @@
+import { NotFoundError } from "@/domains/errors/not-found";
+import { RowNotAffectedError } from "@/domains/errors/row-not-affected";
 import type { UserRepositoryInterface } from "@/domains/interfaces/user";
 import type {
-  UserType,
   CreateUserType,
   UpdateUserType,
+  UserType,
 } from "@/domains/types/user";
 import postgres from "../database/postgres";
-import { NotFoundError } from "@/domains/errors/not-found";
-import { InvalidFieldError } from "@/domains/errors/invalid-field";
-import { RowNotAffectedError } from "@/domains/errors/row-not-affected";
 
 export class UserRepository implements UserRepositoryInterface {
-  private mapRowToUserType(row: any): UserType {
-    return {
-      id: row.id,
-      name: row.name,
-      description: row.description,
-      avatarLink: row.avatar_link,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-    };
-  }
+  tableName: string = "users";
 
   private async getUserOrFail(id: number): Promise<UserType> {
-    const row = await postgres("users").where("id", id).first();
-
+    const row = await postgres<UserType>(this.tableName)
+      .where("id", id)
+      .first();
     if (!row) {
-      throw new NotFoundError(`Usuário com o id ${id} não encontrada.`);
+      throw new NotFoundError(`Usuário com o id ${id} não encontrado.`);
     }
 
-    return this.mapRowToUserType(row);
+    return row;
   }
 
   async getAll(): Promise<UserType[]> {
-    return (await postgres("users").select("*")).map((row) =>
-      this.mapRowToUserType(row),
-    );
+    return await postgres<UserType>(this.tableName).select("*");
   }
 
   async getById(id: number): Promise<UserType> {
@@ -42,62 +31,39 @@ export class UserRepository implements UserRepositoryInterface {
   }
 
   async create(data: CreateUserType): Promise<UserType> {
-    const [row] = await postgres("users")
-      .insert({
-        name: data.name,
-        description: data.description,
-        avatar_link: data.avatarLink,
-        created_at: new Date(),
-      })
+    const [row] = await postgres<UserType>(this.tableName)
+      .insert(data)
       .returning("*");
 
-    return this.mapRowToUserType(row);
+    return row;
   }
 
   async deleteById(id: number): Promise<number> {
     await this.getUserOrFail(id);
 
-    const deletedCount = await postgres("users").where("id", id).del();
-
+    const deletedCount = await postgres(this.tableName).where("id", id).del();
     if (deletedCount === 0) {
-      throw new RowNotAffectedError(
-        `Nenhum registro foi deletado com id: ${id}`,
-      );
+      throw new RowNotAffectedError(`Nenhum usuário foi deletado.`);
     }
 
     return id;
   }
 
   async update(data: UpdateUserType): Promise<UserType> {
-    if (!data.id) {
-      throw new NotFoundError(
-        "Não foi possível prosseguir com a solicitação, o Id não foi informado.",
-      );
-    }
-
     await this.getUserOrFail(data.id);
 
-    const fieldMap: Record<string, string> = {
-      name: "name",
-      description: "description",
-      avatarLink: "avatar_link",
-    };
-
-    const filteredData = Object.fromEntries(
-      Object.entries(data)
-        .filter(([_, value]) => value != null && value !== "")
-        .map(([key, value]) => [fieldMap[key] || key, value]),
+    const fieldsToUpdate: Partial<UpdateUserType> = Object.fromEntries(
+      Object.entries(data).filter(
+        ([_, v]) =>
+          v !== undefined && (typeof v !== "string" || v.trim() !== ""),
+      ),
     );
 
-    if (Object.keys(filteredData).length === 0) {
-      throw new InvalidFieldError("Nenhum campo válido para atualizar.");
-    }
-
-    const [row] = await postgres("users")
+    const [row] = await postgres<UserType>(this.tableName)
       .where("id", data.id)
       .update({
-        ...filteredData,
-        updated_at: new Date(),
+        ...fieldsToUpdate,
+        updatedAt: new Date(),
       })
       .returning("*");
 
@@ -107,16 +73,6 @@ export class UserRepository implements UserRepositoryInterface {
       );
     }
 
-    return this.mapRowToUserType(row);
-  }
-
-  async deleteAll(): Promise<boolean> {
-    const deletedCount = await postgres("users").del();
-
-    if (deletedCount === 0) {
-      throw new RowNotAffectedError(`Nenhum registro foi deletado.`);
-    }
-
-    return true;
+    return row;
   }
 }

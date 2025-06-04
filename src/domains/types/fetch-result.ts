@@ -1,4 +1,4 @@
-export default interface FetchResult<T> {
+export type FetchResultType<T> = {
   data: T;
   error: string;
-}
+};
